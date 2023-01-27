@@ -1,8 +1,9 @@
 <body id="id5z">
     <div id="io4n" class="row">
         <div id="ii2j" class="cell">
-            <video allowfullscreen="allowfullscreen" id="i4dw" src="../Vids/a.mp4" autoplay="autoplay"></video>
-            <button onclick="playVidAndHide()" id="i02m">PLAY</button>
+            <video controls allowfullscreen="allowfullscreen" id="i4dw" src="../Vids/a.mp4"
+                autoplay="autoplay"></video>
+            <!-- <button onclick="playVidAndHide()" id="i02m">PLAY</button> -->
         </div>
     </div>
     <div class="row" id="ij3yg">
@@ -14,6 +15,7 @@
     </div>
     <div id="i545" class="row">
         <button onclick="window.location.href='../index.html';" type="button">Home </button>
+        <button onclick="window.location.href='../sceneselect.html';" type="button">| Scene Selection </button>
         <button onclick="playorpauseVid()" type="button">| Play/Pause</button>
     </div>
     </div>
@@ -37,6 +39,24 @@
 <script>
     var x = document.getElementById("i4dw");
     var z = document.getElementById("i02m");
+    var promise = x.play();
+
+    if (promise !== undefined) {
+        promise.then(_ => {
+            // Autoplay started!
+        }).catch(error => {
+            // Autoplay not allowed!
+            // Mute video and try to play again
+            x.muted = true;
+            x.play();
+
+            // Show something in the UI that the video is muted
+        });
+    }
+
+    if (x.playing) {
+        z.style.display = "none";
+    }
 
     function playorpauseVid() {
         if (x.paused) {
@@ -46,11 +66,11 @@
         else {
             x.pause();
         }
-    } 
+    }
 
     function playVidAndHide() {
-         x.play();
-         z.style.display = "none";
+        x.play();
+        z.style.display = "none";
     } 
 </script>
 
@@ -110,7 +130,7 @@
         background-color: rgb(0, 0, 0);
         height: 46px;
         opacity: 0.35;
-        bottom: -77vh;
+        bottom: -75vh;
         position: relative;
     }
 
@@ -140,7 +160,7 @@
 
     #is2oa {
         background-color: aqua;
-        opacity: 0.35;
+        opacity: 0.7;
         display: "none";
         text-align: center;
         padding: 26px 0 0 0;
@@ -158,6 +178,7 @@
         background-color: #545454;
         font-family: Verdana, Geneva, sans-serif;
         font-weight: 600;
+        animation: pulse 2s infinite;
     }
 
     button {
@@ -178,4 +199,11 @@
         right: 0;
         top: 50%;
     }
+
+    @keyframes pulse {
+        from {font-size: 1.5em}
+        50% {font-size: 1.65em}
+        to {font-size: 1.5em}
+    }
+
 </style>
