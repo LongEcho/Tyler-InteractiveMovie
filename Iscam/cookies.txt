@@ -1,0 +1,5 @@
+# HTTrack Website Copier Cookie File
+# This file format is compatible with Netscape cookies
+ewg-hh.de	TRUE	/iserv/auth	FALSE	1999999999	IServAuthSession	cov65kulu67ba6gt9erkjfp3su
+ewg-hh.de	TRUE	/	FALSE	1999999999	samesite	lax
+
