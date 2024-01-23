@@ -1,18 +1,64 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SQL.js Demo</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.5.0/sql-wasm.js" onload="initSQL()"></script>
+</head>
 <body>
 
-<h1>My first PHP page</h1>
+<h1>SQL.js Demo</h1>
 
-<?php
-$db = new SQLite3('example.sql');
+<input type="file" id="fileInput" accept=".sql">
+<button onclick="loadFile()">Load SQL File</button>
 
-$results = $db->query('SELECT name FROM inventory WHERE id=100');
+<br><br>
 
-while ($row = $results->fetchArray()) {
-    echo $row['name'];
-}
-?>
+<textarea id="sqlInput" placeholder="Enter SQL Command"></textarea>
+<button onclick="runSQL()">Run SQL Command</button>
+
+<br><br>
+
+<pre id="output"></pre>
+
+<script>
+  let db;
+
+  function initSQL() {
+    // This function is called once the SQL.js script is loaded
+    SQL = initSqlJs({
+      locateFile: () => 'https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.5.0/sql-wasm.wasm'
+    });
+  }
+
+  function loadFile() {
+    const fileInput = document.getElementById('fileInput');
+    const file = fileInput.files[0];
+
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const data = new Uint8Array(event.target.result);
+        db = new SQL.Database(data);
+        console.log("Database loaded successfully.");
+      };
+      reader.readAsArrayBuffer(file);
+    }
+  }
+
+  function runSQL() {
+    const sqlInput = document.getElementById('sqlInput');
+    const output = document.getElementById('output');
+
+    try {
+      const result = db.exec(sqlInput.value);
+      output.textContent = JSON.stringify(result, null, 2);
+    } catch (error) {
+      output.textContent = `Error: ${error.message}`;
+    }
+  }
+</script>
 
 </body>
 </html>
