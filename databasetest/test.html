@@ -1,29 +1,18 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>SQLite with sql.js</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.5.0/sql-wasm.min.js"></script>
-</head>
 <body>
-    <h1>SQLite with sql.js</h1>
-    <div id="output"></div>
-    <script>
-        // Fetch the SQLite file
-        fetch('https://github.com/LongEcho/Tyler-InteractiveMovie/raw/main/databasetest/exaple.sql').then(response => response.arrayBuffer())
-        .then(buffer => {
-            // Initialize SQL.js
-            const SQL = initSqlJs();
-            // Load the SQLite database into memory
-            const db = new SQL.Database(new Uint8Array(buffer));
-            // Prepare the statement
-            const stmt = db.prepare("SELECT name FROM inventory WHERE id=:idval");
-            // Bind the value
-            stmt.bind({':idval' : 100});
-            // Execute the statement and get the result
-            const result = stmt.getAsObject();
-            // Output the result
-            document.getElementById('output').textContent = JSON.stringify(result);
-        });
-    </script>
+
+<h1>My first PHP page</h1>
+
+<?php
+$db = new SQLite3('example.sql');
+
+$results = $db->query('SELECT name FROM inventory WHERE id=100');
+
+while ($row = $results->fetchArray()) {
+    echo $row['name'];
+}
+?>
+
 </body>
 </html>
