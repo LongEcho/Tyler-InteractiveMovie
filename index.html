@@ -1,110 +1,887 @@
-<body id="id5z">
-    <div class="row">
-        <div class="cell">
-            <div id="in5e">Tyler</div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="cell"></div>
-    </div>
-    <div class="row">
-        <div id="iz4h" class="cell"><a id="ik6w" href="sites/start.html" target="_blank">Start</a></div>
-    </div>
-    <div class="row">
-        <div id="iot6b" class="cell"><a id="ih4yi" href="sceneselect.html">Scene Selection</a></div>
-    </div>
-    <div class="row" id="ie6qo">
-        <div class="cell">
-            <div id="i3wsf">Interface by Eric</div>
-        </div>
-    </div>
-</body>
-<style>
-    * {
-        box-sizing: border-box;
-    }
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Tyler Interactive Movie - Wähle dein eigenes Abenteuer">
+    <title>Tyler - Interaktiver Film</title>
+    <link rel="preload" href="Vids/Start.mp4" as="video" type="video/mp4">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-    body {
-        margin: 0;
-    }
+        :root {
+            --primary-bg: #0d1117;
+            --secondary-bg: #161b22;
+            --tertiary-bg: #21262d;
+            --accent-primary: #58a6ff;
+            --accent-secondary: #f85149;
+            --accent-success: #3fb950;
+            --text-primary: #f0f6fc;
+            --text-secondary: #8b949e;
+            --text-muted: #6e7681;
+            --border-color: #30363d;
+            --border-muted: #21262d;
+            --shadow-primary: rgba(0, 0, 0, 0.5);
+            --shadow-secondary: rgba(0, 0, 0, 0.3);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --blur-strength: 20px;
+        }
 
-    #id5z {
-        background-color: #000000;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    .row {
-        display: flex;
-        justify-content: flex-start;
-        align-items: stretch;
-        flex-wrap: nowrap;
-        padding-top: 10px;
-        padding-right: 10px;
-        padding-bottom: 10px;
-        padding-left: 10px;
-    }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 100%);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            min-height: 100vh;
+            font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+            font-variation-settings: normal;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
 
-    .cell {
-        min-height: 75px;
-        flex-grow: 1;
-        flex-basis: 100%;
-    }
+        .app-container {
+            min-height: 100vh;
+            position: relative;
+            backdrop-filter: blur(var(--blur-strength));
+        }
 
-    #in5e {
-        padding: 10px;
-        font-family: Verdana, Geneva, sans-serif;
-        color: #db7b7b;
-        font-weight: 900;
-        text-align: center;
-        font-size: 55px;
-    }
+        .main-menu {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
 
-    #ik6w {
-        color: #dcdcdc;
-        font-family: Verdana, Geneva, sans-serif;
-        font-weight: 700;
-        border: 12px solid #454343;
-        background-color: #454343;
-        font-size: 23px;
-        animation: pulse 2s infinite;
-    }
+        .main-menu::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, var(--accent-primary) 0%, transparent 70%);
+            opacity: 0.03;
+            animation: rotate 20s linear infinite;
+            pointer-events: none;
+        }
 
-    #iz4h {
-        text-align: center;
-    }
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
 
-    #ih4yi {
-        color: #dcdcdc;
-        font-family: Verdana, Geneva, sans-serif;
-        font-weight: 700;
-        border: 12px solid #454343;
-        background-color: #454343;
-        font-size: 23px;
-    }
+        .game-screen {
+            display: none;
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            background: var(--primary-bg);
+        }
 
-    #iot6b {
-        text-align: center;
-    }
+        .scene-select {
+            display: none;
+            padding: 2rem;
+            min-height: 100vh;
+            background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 100%);
+        }
 
-    #i3wsf {
-        padding: 10px;
-        color: #808080;
-        font-family: Verdana, Geneva, sans-serif;
-    }
+        .title {
+            font-size: clamp(2.5rem, 12vw, 8rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--text-primary) 0%, var(--accent-primary) 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.02em;
+            line-height: 0.9;
+            position: relative;
+        }
 
-    #ie6qo {
-        position: fixed;
-        bottom: 0;
-    }
+        .title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--accent-primary), transparent);
+        }
 
-    @media (max-width: 768px) {
-        .row {
+        .subtitle {
+            font-size: clamp(1rem, 3vw, 1.5rem);
+            color: var(--text-secondary);
+            margin-bottom: 4rem;
+            font-weight: 300;
+            letter-spacing: 0.01em;
+        }
+
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
+            font-weight: 500;
+            background: var(--glass-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: inline-block;
+            min-width: 220px;
+            position: relative;
+            backdrop-filter: blur(var(--blur-strength));
+            overflow: hidden;
+            box-shadow: 0 8px 32px var(--shadow-secondary);
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 48px var(--shadow-primary);
+            border-color: var(--accent-primary);
+            background: var(--accent-primary);
+            color: var(--primary-bg);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            border: 1px solid var(--accent-primary);
+            font-weight: 600;
+            box-shadow: 0 8px 32px rgba(88, 166, 255, 0.3);
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
+            box-shadow: 0 16px 48px rgba(88, 166, 255, 0.5);
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            background: var(--primary-bg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .video-player {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: var(--primary-bg);
+            transition: all 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .video-player.fade-out {
+            opacity: 0.2;
+            filter: blur(2px);
+        }
+
+        .loading-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary-bg) 0%, var(--secondary-bg) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 0 20px rgba(88, 166, 255, 0.3);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(180deg, transparent 0%, rgba(13, 17, 23, 0.9) 100%);
+            padding: 3rem 2rem 2rem;
+            z-index: 15;
+            backdrop-filter: blur(var(--blur-strength));
+        }
+
+        .choice-container {
+            display: none;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
             flex-wrap: wrap;
         }
-    }
-    
-    @keyframes pulse {
-        from {font-size: 2em}
-        50% {font-size: 2.2em}
-        to {font-size: 2em}
-    }
-</style>
+
+        .choice-container.active {
+            display: flex;
+            animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .choice-btn {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+            font-weight: 500;
+            background: var(--glass-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            min-width: 160px;
+            backdrop-filter: blur(var(--blur-strength));
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 16px var(--shadow-secondary);
+        }
+
+        .choice-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: radial-gradient(circle, var(--accent-primary) 0%, transparent 70%);
+            transition: all 0.3s ease;
+            transform: translate(-50%, -50%);
+            border-radius: 50%;
+            opacity: 0;
+        }
+
+        .choice-btn:hover::before {
+            width: 300px;
+            height: 300px;
+            opacity: 0.1;
+        }
+
+        .choice-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 32px var(--shadow-primary);
+            border-color: var(--accent-primary);
+            background: var(--accent-primary);
+            color: var(--primary-bg);
+        }
+
+        .control-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+
+        .control-buttons:hover {
+            opacity: 1;
+        }
+
+        .control-btn {
+            padding: 0.7rem 1.2rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            background: var(--glass-bg);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-muted);
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .control-btn:hover {
+            background: var(--tertiary-bg);
+            color: var(--text-primary);
+            border-color: var(--border-color);
+            transform: translateY(-1px);
+        }
+
+        .mute-indicator {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--blur-strength));
+            color: var(--text-primary);
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            opacity: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 25;
+            border: 1px solid var(--glass-border);
+            cursor: pointer;
+            box-shadow: 0 8px 32px var(--shadow-secondary);
+        }
+
+        .mute-indicator.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .mute-indicator:hover {
+            background: var(--accent-primary);
+            color: var(--primary-bg);
+            transform: scale(1.05);
+        }
+
+        .scene-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 2rem 0;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .scene-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--blur-strength));
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 32px var(--shadow-secondary);
+        }
+
+        .scene-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .scene-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .scene-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 16px 48px var(--shadow-primary);
+            border-color: var(--accent-primary);
+            background: var(--tertiary-bg);
+        }
+
+        .scene-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        .scene-description {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .back-button {
+            background: var(--glass-bg);
+            backdrop-filter: blur(var(--blur-strength));
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 1rem 2rem;
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-block;
+            cursor: pointer;
+            box-shadow: 0 4px 16px var(--shadow-secondary);
+        }
+
+        .back-button:hover {
+            background: var(--tertiary-bg);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 32px var(--shadow-primary);
+        }
+
+        .credits {
+            position: fixed;
+            bottom: 1rem;
+            right: 1rem;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            font-weight: 400;
+            opacity: 0.7;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(10px);
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            background: var(--glass-bg);
+            border: 1px solid var(--border-muted);
+        }
+
+        .credits:hover {
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .title {
+                font-size: 3rem;
+            }
+            
+            .menu-buttons {
+                width: 100%;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .choice-container {
+                flex-direction: column;
+                align-items: center;
+                gap: 1rem;
+            }
+            
+            .choice-btn {
+                width: 100%;
+                max-width: 280px;
+            }
+            
+            .controls {
+                padding: 2rem 1rem 1rem;
+            }
+            
+            .control-buttons {
+                flex-wrap: wrap;
+                gap: 0.8rem;
+            }
+            
+            .control-btn {
+                flex: 1;
+                min-width: 90px;
+                font-size: 0.8rem;
+            }
+            
+            .scene-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                padding: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .title {
+                font-size: 2.5rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .btn {
+                padding: 0.9rem 2rem;
+            }
+            
+            .choice-btn {
+                padding: 0.9rem 1.5rem;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Hauptmenü -->
+        <div class="main-menu" id="mainMenu">
+            <h1 class="title">TYLER</h1>
+            <p class="subtitle">Interaktives Film-Erlebnis</p>
+            <div class="menu-buttons">
+                <button class="btn btn-primary" onclick="startGame()">Abenteuer Starten</button>
+                <button class="btn" onclick="showSceneSelect()">Szenenauswahl</button>
+            </div>
+            <div class="credits">
+                Interface von Eric
+            </div>
+        </div>
+
+        <!-- Spielbildschirm -->
+        <div class="game-screen" id="gameScreen">
+            <div class="loading-screen" id="loadingScreen">
+                <div class="loading-spinner"></div>
+                <p>Video wird geladen...</p>
+            </div>
+            
+            <div class="video-container">
+                <video 
+                    class="video-player" 
+                    id="gameVideo" 
+                    playsinline 
+                    preload="metadata"
+                    onloadeddata="hideLoading()"
+                    onended="showChoices()">
+                </video>
+                
+                <div class="mute-indicator" id="muteIndicator">
+                    Klicken zum Entmuten
+                </div>
+                
+                <div class="controls">
+                    <div class="choice-container" id="choiceContainer">
+                        <!-- Wahlmöglichkeiten werden hier eingefügt -->
+                    </div>
+                    
+                    <div class="control-buttons">
+                        <button class="control-btn" onclick="togglePlayPause()">Wiedergabe</button>
+                        <button class="control-btn" onclick="skipToEnd()">Überspringen</button>
+                        <button class="control-btn" onclick="toggleMute()">Ton</button>
+                        <button class="control-btn" onclick="goHome()">Startseite</button>
+                        <button class="control-btn" onclick="showSceneSelect()">Szenen</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Szenenauswahl -->
+        <div class="scene-select" id="sceneSelect">
+            <h2 class="title" style="font-size: 2.5rem; margin-bottom: 3rem;">Szene Auswählen</h2>
+            <div class="scene-grid">
+                <div class="scene-card" onclick="playScene('Start')">
+                    <div class="scene-title">Start</div>
+                    <div class="scene-description">Das Abenteuer beginnen</div>
+                </div>
+                <div class="scene-card" onclick="playScene('a')">
+                    <div class="scene-title">Tim Retten</div>
+                    <div class="scene-description">Entscheide dich, Tim zu retten</div>
+                </div>
+                <div class="scene-card" onclick="playScene('b')">
+                    <div class="scene-title">Tim Zurücklassen</div>
+                    <div class="scene-description">Entscheide dich, Tim nicht zu retten</div>
+                </div>
+                <div class="scene-card" onclick="playScene('aa')">
+                    <div class="scene-title">Ins Loch</div>
+                    <div class="scene-description">Tim gerettet - ins Loch gehen</div>
+                </div>
+                <div class="scene-card" onclick="playScene('ab')">
+                    <div class="scene-title">Zum Ausgang</div>
+                    <div class="scene-description">Tim gerettet - zum Ausgang gehen</div>
+                </div>
+                <div class="scene-card" onclick="playScene('ac')">
+                    <div class="scene-title">Staubsauger Verwenden</div>
+                    <div class="scene-description">Tim gerettet - den Staubsauger benutzen</div>
+                </div>
+                <div class="scene-card" onclick="playScene('ba')">
+                    <div class="scene-title">Zum Ausgang</div>
+                    <div class="scene-description">Tim zurückgelassen - zum Ausgang gehen</div>
+                </div>
+                <div class="scene-card" onclick="playScene('bb')">
+                    <div class="scene-title">Ins Loch</div>
+                    <div class="scene-description">Tim zurückgelassen - ins Loch gehen</div>
+                </div>
+                <div class="scene-card" onclick="playScene('bc')">
+                    <div class="scene-title">Staubsauger Verwenden</div>
+                    <div class="scene-description">Tim zurückgelassen - den Staubsauger benutzen</div>
+                </div>
+            </div>
+            <div style="text-align: center; margin-top: 3rem;">
+                <button class="btn back-button" onclick="goHome()">← Zurück zur Startseite</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Spielzustand
+        let currentScene = '';
+        let video = null;
+        let isVideoPlaying = false;
+        let isMuted = true;
+
+        // Szenendaten-Struktur
+        const sceneData = {
+            'Start': {
+                video: 'Vids/Start.mp4',
+                choices: [
+                    { text: 'Tim Retten', scene: 'a' },
+                    { text: 'Tim Nicht Retten', scene: 'b' }
+                ]
+            },
+            'a': {
+                video: 'Vids/a.mp4',
+                choices: [
+                    { text: 'Ins Loch', scene: 'aa' },
+                    { text: 'Zum Ausgang', scene: 'ab' },
+                    { text: 'Staubsauger Benutzen', scene: 'ac' }
+                ]
+            },
+            'b': {
+                video: 'Vids/b.mp4',
+                choices: [
+                    { text: 'Zum Ausgang', scene: 'ba' },
+                    { text: 'Ins Loch', scene: 'bb' },
+                    { text: 'Staubsauger Benutzen', scene: 'bc' }
+                ]
+            },
+            'aa': { video: 'Vids/aa.mp4', choices: [] },
+            'ab': { video: 'Vids/ab.mp4', choices: [] },
+            'ac': { video: 'Vids/ac.mp4', choices: [] },
+            'ba': { video: 'Vids/ba.mp4', choices: [] },
+            'bb': { video: 'Vids/bb.mp4', choices: [] },
+            'bc': { video: 'Vids/bc.mp4', choices: [] }
+        };
+
+        // App initialisieren
+        function init() {
+            video = document.getElementById('gameVideo');
+            
+            // Click-Listener für Entmuten hinzufügen
+            video.addEventListener('click', handleVideoClick);
+            
+            // Kontextmenü auf Video verhindern
+            video.addEventListener('contextmenu', e => e.preventDefault());
+        }
+
+        // Spiel starten
+        function startGame() {
+            playScene('Start');
+        }
+
+        // Szenenauswahl anzeigen
+        function showSceneSelect() {
+            hideAllScreens();
+            document.getElementById('sceneSelect').style.display = 'block';
+        }
+
+        // Zurück zur Startseite
+        function goHome() {
+            hideAllScreens();
+            document.getElementById('mainMenu').style.display = 'flex';
+            if (video) {
+                video.pause();
+                video.currentTime = 0;
+            }
+        }
+
+        // Alle Bildschirme ausblenden
+        function hideAllScreens() {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('gameScreen').style.display = 'none';
+            document.getElementById('sceneSelect').style.display = 'none';
+        }
+
+        // Spezielle Szene abspielen
+        function playScene(sceneName) {
+            currentScene = sceneName;
+            const scene = sceneData[sceneName];
+            
+            if (!scene) {
+                console.error('Szene nicht gefunden:', sceneName);
+                return;
+            }
+
+            hideAllScreens();
+            document.getElementById('gameScreen').style.display = 'block';
+            document.getElementById('loadingScreen').style.display = 'flex';
+            document.getElementById('choiceContainer').classList.remove('active');
+            
+            // Fade-Effekt vom vorherigen Video entfernen
+            video.classList.remove('fade-out');
+            
+            // Video laden und abspielen
+            video.src = scene.video;
+            video.load();
+            
+            // Auto-Play mit Stummschaltungsbehandlung
+            const playPromise = video.play();
+            
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                    isVideoPlaying = true;
+                }).catch(error => {
+                    // Autoplay fehlgeschlagen, stumm schalten und erneut versuchen
+                    video.muted = true;
+                    isMuted = true;
+                    showMuteIndicator();
+                    video.play().then(() => {
+                        isVideoPlaying = true;
+                    }).catch(e => {
+                        console.error('Video-Wiedergabe fehlgeschlagen:', e);
+                    });
+                });
+            }
+        }
+
+        // Wahlmöglichkeiten anzeigen wenn Video endet
+        function showChoices() {
+            // Fade-Effekt zum Video hinzufügen
+            video.classList.add('fade-out');
+            
+            const scene = sceneData[currentScene];
+            const choiceContainer = document.getElementById('choiceContainer');
+            
+            setTimeout(() => {
+                if (scene && scene.choices.length > 0) {
+                    choiceContainer.innerHTML = '';
+                    
+                    scene.choices.forEach(choice => {
+                        const button = document.createElement('button');
+                        button.className = 'choice-btn';
+                        button.textContent = choice.text;
+                        button.onclick = () => playScene(choice.scene);
+                        choiceContainer.appendChild(button);
+                    });
+                    
+                    choiceContainer.classList.add('active');
+                } else {
+                    // Ende der Geschichte
+                    choiceContainer.innerHTML = '<button class="choice-btn" onclick="goHome()">Zurück zum Menü</button>';
+                    choiceContainer.classList.add('active');
+                }
+            }, 500);
+        }
+
+        // Ladebildschirm ausblenden
+        function hideLoading() {
+            document.getElementById('loadingScreen').style.display = 'none';
+        }
+
+        // Video-Klick für Entmuten behandeln
+        function handleVideoClick() {
+            if (isMuted) {
+                toggleMute();
+            } else {
+                togglePlayPause();
+            }
+        }
+
+        // Wiedergabe/Pause umschalten
+        function togglePlayPause() {
+            if (video) {
+                if (video.paused) {
+                    video.play();
+                    isVideoPlaying = true;
+                } else {
+                    video.pause();
+                    isVideoPlaying = false;
+                }
+            }
+        }
+
+        // Zum Ende überspringen (7 Sekunden vor Ende)
+        function skipToEnd() {
+            if (video && video.duration) {
+                const skipTime = Math.max(0, video.duration - 7);
+                video.currentTime = skipTime;
+            }
+        }
+
+        // Stummschaltung umschalten
+        function toggleMute() {
+            if (video) {
+                video.muted = !video.muted;
+                isMuted = video.muted;
+                
+                if (!isMuted) {
+                    hideMuteIndicator();
+                } else {
+                    showMuteIndicator();
+                }
+            }
+        }
+
+        // Stummschaltungs-Indikator anzeigen
+        function showMuteIndicator() {
+            const indicator = document.getElementById('muteIndicator');
+            indicator.classList.add('show');
+            indicator.onclick = toggleMute;
+            
+            setTimeout(() => {
+                if (isMuted) {
+                    indicator.classList.remove('show');
+                }
+            }, 4000);
+        }
+
+        // Stummschaltungs-Indikator ausblenden
+        function hideMuteIndicator() {
+            document.getElementById('muteIndicator').classList.remove('show');
+        }
+
+        // Initialisieren wenn DOM geladen ist
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
